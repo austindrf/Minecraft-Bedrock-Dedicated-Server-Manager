@@ -13,7 +13,7 @@ Also, this program will delete any zip folders where the name
 starts with bedrock-server (only in the current directory)
 
 You can use 'pyinstaller' to make this program easier to use 
-pyinstaller --onefile '.\Minecraft Server Updater.py'
+run "pyinstaller --onefile '.\Minecraft Server Updater.py'"
 
 Folder should look like this:
 any folder/
