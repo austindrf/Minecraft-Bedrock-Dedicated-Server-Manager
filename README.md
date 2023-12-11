@@ -12,7 +12,7 @@ configured settings from the old server.properties file will be changed
 Also, this program will delete any zip folders where the name 
 starts with bedrock-server (only in the current directory)
 
-You can use 'pyinstaller' to make this program easier to use 
+You can use 'pyinstaller' to make this program easier to use, 
 run "pyinstaller --onefile '.\Minecraft Server Updater.py'"
 
 Folder should look like this:
