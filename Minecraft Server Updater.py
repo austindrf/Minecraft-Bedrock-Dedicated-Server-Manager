@@ -1,13 +1,21 @@
-import requests
-import logging
-import urllib3
-import zipfile
-import shutil
-import tarfile
+
+import importlib, subprocess
+required_libraries = ["requests", "urllib3", "tqdm"]
+s=False
+for library in required_libraries:
+    try:
+        importlib.import_module(library)
+    except ImportError:
+        print("====installing missing library:"+library+"====")
+        subprocess.check_call(['pip', 'install', library])
+        s=True
+import requests, urllib3, logging, zipfile, shutil, tarfile, time, math
 from tqdm import tqdm
 from datetime import datetime
-import time
-import math
+if s:
+    print("====finished installing missing librarys====")
+
+
 global debug
 debug=False
 
@@ -55,11 +63,6 @@ class BedrockServerController:
                 print(f"Error sending command to Bedrock Server: {e}")
         else:
             print("Bedrock Server is not running.")
-    def main(self):
-        if self.server_process:
-            while True:
-                controller.send_command("list")
-
 
 # Disable SSL/TLS warnings
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -352,14 +355,10 @@ def copy_other(vs, oldversion):
 
 
 
-def get_ts():
+def get_ts():#returns the current time in seconds
     now = datetime.now()
     timestamp = time.mktime(now.timetuple())
     return int(timestamp)
-
-# Example usage:
-
-
 
 def seconds_since_last_update_search(tm):
     return int(math.fabs(float(get_ts())-float(tm)))
@@ -368,7 +367,7 @@ def sp(i, val):
         return str(str(i.replace(val, "")).split("\n")[0])
     else:
         return "?"
-#Server_Updater_Settings.txt
+
 def Read_Settings_file():
     servset=[]
     run=True
@@ -439,21 +438,20 @@ def start_server():
     controller.start_bedrock_server()
    
 def stop_server(oldvs, vs):
-    for t in range(1, 6):
+    for t in range(1, 6):#title that appears on players screen saying that the server is about to shut down
         controller.send_command("title @a title Shuting down to update")
         controller.send_command("title @a subtitle "+oldvs+" to "+vs+" in "+str(6-t))
         time.sleep(1)
     controller.stop_bedrock_server()
     print("stoping server")
 
-
 global controller
 global server_path
 server_path = "./"+old_mcserver_file("999999999")+"/bedrock_server.exe"
-controller = BedrockServerController(server_path)
+controller = BedrockServerController(server_path)# used to run the server as a child process so python can interact with it (safely shutdown or automate server commands)
 settings=Read_Settings_file()
 run=True
-oldvs=old_mcserver_file("999999999")
+oldvs=old_mcserver_file("999999999")#setting this to a number higher than the current minecraft version makes it find the newest minecaft server folder
 if oldvs=="na":
     print("No server folder found - downloading and extracting") 
     vs=mc_version()
@@ -464,7 +462,7 @@ if oldvs=="na":
             file_update_time(settings[0])
             file_update_version("na", vs)
             delete_zip_files()
-    input("configure server.properties then pres enter")
+    input("configure server.properties then press enter")
 try:
     start_server()
 except:
@@ -512,9 +510,7 @@ if __name__ == "__main__":
                                                 shutil.rmtree(oldvs)
                                     else:
                                         if settings[3]=="True":
-                                            print("that one")
                                             af=archive_folder(oldvs)
-                                            
                                         if settings[4]=="True":
                                             shutil.rmtree(oldvs)
                             else:
@@ -543,7 +539,7 @@ if __name__ == "__main__":
             except:
                 run = False
                 nul=""
-            if (controller.server_process is None or controller.server_process.poll() is not None) and run:
+            if (controller.server_process is None or controller.server_process.poll() is not None) and run:#restarts the server if it crashes
                 print("Bedrock Server process is not running. Starting the server...")
                 controller.start_bedrock_server()
             if not(run) and not(oldvs=="na"):
